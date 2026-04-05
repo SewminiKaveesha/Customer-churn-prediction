@@ -116,42 +116,28 @@ The entire pipeline lives in `00_Full_Workflow.ipynb`. The table below maps ever
 ## Cloud Architecture (AWS)
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                          AWS Cloud                               │
-│                                                                  │
-│   ┌─────────────────┐       ┌──────────────────────────────┐    │
-│   │   Amazon S3      │──────▶│   EC2 / SageMaker Studio     │    │
-│   │                  │       │                              │    │
-│   │  churn-bigml-    │       │  • Jupyter notebooks         │    │
-│   │  80.csv (train)  │       │  • Model training            │    │
-│   │  churn-bigml-    │       │  • Cross-validation          │    │
-│   │  20.csv (test)   │       │                              │    │
-│   │                  │◀──────│  Artefacts uploaded back     │    │
-│   │  models/         │       │  (model.pkl, scaler.pkl)     │    │
-│   │  churn_model.pkl │       └──────────────┬───────────────┘    │
-│   └─────────────────┘                       │                    │
-│                                             ▼                    │
-│                              ┌──────────────────────────────┐    │
-│                              │  SageMaker Model Registry    │    │
-│                              │  • Version control           │    │
-│                              │  • Model metadata            │    │
-│                              └──────────────┬───────────────┘    │
-│                                             ▼                    │
-│                              ┌──────────────────────────────┐    │
-│                              │  SageMaker Endpoint          │    │
-│                              │  REST API — real-time scoring │    │
-│                              └──────────────┬───────────────┘    │
-│                                             ▼                    │
-│                              ┌──────────────────────────────┐    │
-│                              │  CloudWatch                  │    │
-│                              │  • Endpoint health           │    │
-│                              │  • Model drift monitoring    │    │
-│                              └──────────────────────────────┘    │
-└──────────────────────────────────────────────────────────────────┘
-                                      ▲
-                               CRM / Web App
-                          (sends customer features,
-                           receives churn probability)
+┌────────────────────────────────────────────────────────────────────────────┐
+│                              AWS Cloud                                     │
+│                                                                            │
+│   ┌─────────────────┐       ┌──────────────────────────────┐              │
+│   │   Amazon S3     │──────▶│   EC2 / SageMaker Studio     │              │
+│   │                 │       │                              │              │
+│   │ churn-bigml-    │       │  • Jupyter notebooks         │              │
+│   │ 80.csv (train)  │       │  • Model training            │              │
+│   │ churn-bigml-    │       │  • Cross-validation          │              │
+│   │ 20.csv (test)   │       │                              │              │
+│   │                 │◀──────│  Artefacts uploaded back     │              │
+│   │ models/         │       │  (model.pkl, scaler.pkl)     │              │
+│   │ churn_model.pkl │       └──────────────┬───────────────┘              │
+│   └─────────────────┘                      │                              │
+│                                           ▼                              │
+│                                     ┌───────────┐                        │
+│                                     │   RDS     │                        │
+│                                     │ (MySQL)  │                        │
+│                                     │ • Store   │                        │
+│                                     │   predictions / metrics         │
+│                                     └───────────┘                        │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### AWS Services Used
